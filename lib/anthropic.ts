@@ -10,7 +10,7 @@ export async function transformText(text: string, filter: FilterType): Promise<s
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 2048,
+    max_tokens: 4096,
     system: systemPrompt,
     messages: [
       {
