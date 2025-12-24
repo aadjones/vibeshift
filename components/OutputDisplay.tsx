@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { type FilterType, filterLabels } from '@/lib/prompts';
+import { LoadingMessage } from './LoadingMessage';
 
 interface OutputDisplayProps {
   original: string;
@@ -25,10 +26,10 @@ const filterBgStyles: Record<FilterType, string> = {
 };
 
 export function OutputDisplay({ original, transformed, filter, isLoading }: OutputDisplayProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('side-by-side');
+  const [viewMode, setViewMode] = useState<ViewMode>('transformed');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const hasContent = original.trim().length > 0 || transformed.length > 0;
+  const hasContent = original.trim().length > 0;
 
   if (!hasContent && !isLoading) {
     return null;
@@ -36,10 +37,10 @@ export function OutputDisplay({ original, transformed, filter, isLoading }: Outp
 
   return (
     <div className="space-y-4">
-      {/* View toggle - hidden on mobile where we only show toggle mode */}
+      {/* View toggle */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-stone-700">
-          {transformed ? `Viewed through ${filterLabels[filter]} lens` : 'Awaiting transformation...'}
+          {transformed ? `Viewed through ${filterLabels[filter]} lens` : `${filterLabels[filter]} lens`}
         </h2>
 
         <div className="hidden md:flex items-center gap-1 bg-stone-100 rounded-lg p-1">
@@ -91,7 +92,7 @@ export function OutputDisplay({ original, transformed, filter, isLoading }: Outp
         ref={containerRef}
         className={`
           rounded-lg border border-stone-200 overflow-hidden
-          ${viewMode === 'side-by-side' ? 'hidden md:grid md:grid-cols-2' : ''}
+          ${viewMode === 'side-by-side' ? 'md:grid md:grid-cols-2' : ''}
         `}
       >
         {/* Original panel */}
@@ -119,11 +120,11 @@ export function OutputDisplay({ original, transformed, filter, isLoading }: Outp
               className={`
                 prose prose-sm max-w-none whitespace-pre-wrap
                 ${filterTextStyles[filter]}
-                ${isLoading ? 'lens-loading' : transformed ? 'lens-reveal' : ''}
+                ${transformed ? 'lens-reveal' : ''}
               `}
             >
               {isLoading ? (
-                <span className="text-stone-400 italic">Focusing lens...</span>
+                <LoadingMessage filter={filter} />
               ) : transformed ? (
                 transformed
               ) : (
@@ -133,39 +134,6 @@ export function OutputDisplay({ original, transformed, filter, isLoading }: Outp
           </div>
         )}
       </div>
-
-      {/* Mobile: Show the hidden panel */}
-      {viewMode !== 'side-by-side' && (
-        <div className="md:hidden rounded-lg border border-stone-200 overflow-hidden">
-          {viewMode === 'original' ? (
-            <div className={`p-6 ${filterBgStyles[filter]}`}>
-              <div className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-3">
-                {filterLabels[filter]}
-              </div>
-              <div
-                className={`
-                  prose prose-sm max-w-none whitespace-pre-wrap
-                  ${filterTextStyles[filter]}
-                  ${isLoading ? 'lens-loading' : transformed ? 'lens-reveal' : ''}
-                `}
-              >
-                {isLoading ? (
-                  <span className="text-stone-400 italic">Focusing lens...</span>
-                ) : transformed || <span className="text-stone-400 italic">Not yet transformed</span>}
-              </div>
-            </div>
-          ) : (
-            <div className="p-6 bg-white">
-              <div className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-3">
-                Original
-              </div>
-              <div className="prose prose-stone prose-sm max-w-none whitespace-pre-wrap">
-                {original || <span className="text-stone-400 italic">No text yet</span>}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

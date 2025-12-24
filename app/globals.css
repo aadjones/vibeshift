@@ -1,18 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  /* Custom colors for filters */
+  /* Filter colors - single source of truth */
+
+  /* Corporate - Gray/Stone */
   --color-corporate-bg: #f8fafc;
   --color-corporate-text: #475569;
   --color-corporate-accent: #94a3b8;
+  --color-corporate-border: #d6d3d1;
+  --color-corporate-border-hover: #a8a29e;
+  --color-corporate-border-selected: #57534e;
 
-  --color-sales-bg: #fffbeb;
-  --color-sales-text: #92400e;
-  --color-sales-accent: #f59e0b;
+  /* Sales - Emerald Green */
+  --color-sales-bg: #ecfdf5;
+  --color-sales-text: #065f46;
+  --color-sales-accent: #10b981;
+  --color-sales-border: #a7f3d0;
+  --color-sales-border-hover: #6ee7b7;
+  --color-sales-border-selected: #10b981;
 
+  /* Hot Dog - Mustard Yellow */
   --color-hotdog-bg: #fefce8;
   --color-hotdog-text: #854d0e;
   --color-hotdog-accent: #E8B923;
+  --color-hotdog-border: #fde047;
+  --color-hotdog-border-hover: #facc15;
+  --color-hotdog-border-selected: #E8B923;
   --color-hotdog-mustard: #E8B923;
 }
 
@@ -57,4 +70,26 @@ body {
   filter: blur(4px);
   opacity: 0.7;
   transition: filter 0.3s, opacity 0.3s;
+}
+
+/* Improved focus indicators for accessibility */
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #44403c;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Filter-specific focus states */
+button:focus-visible[class*="corporate"] {
+  outline-color: var(--color-corporate-border-selected);
+}
+
+button:focus-visible[class*="sales"] {
+  outline-color: var(--color-sales-border-selected);
+}
+
+button:focus-visible[class*="hotdog"] {
+  outline-color: var(--color-hotdog-border-selected);
 }

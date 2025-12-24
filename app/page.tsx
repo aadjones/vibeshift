@@ -1,25 +1,31 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { TextInput } from "@/components/TextInput";
 import { FilterSelector } from "@/components/FilterSelector";
 import { OutputDisplay } from "@/components/OutputDisplay";
 import { ShareImage } from "@/components/ShareImage";
 import { type FilterType } from "@/lib/prompts";
 
+const DEFAULT_TEXT = `I woke up this morning feeling great. The sun was shining through my window. I made myself a cup of coffee and sat down to read the newspaper. My cat jumped onto my lap and started purring. It was a perfect way to start the day.`;
+
 export default function Home() {
-  const [inputText, setInputText] = useState("");
-  const [transformedText, setTransformedText] = useState("");
+  const [inputText, setInputText] = useState(DEFAULT_TEXT);
+  const [transformedTexts, setTransformedTexts] = useState<Record<FilterType, string>>({
+    corporate: "",
+    sales: "",
+    hotdog: ""
+  });
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("corporate");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit =
-    inputText.trim().length > 0 && inputText.length <= 8000 && !isLoading;
+    inputText.trim().length > 0 && inputText.length <= 600 && !isLoading;
 
   const handleFilterChange = (filter: FilterType) => {
     setSelectedFilter(filter);
-    setTransformedText(""); // Clear old transformation when switching lenses
   };
 
   const handleTransform = async () => {
@@ -27,7 +33,6 @@ export default function Home() {
 
     setIsLoading(true);
     setError(null);
-    setTransformedText("");
 
     try {
       const response = await fetch("/api/transform", {
@@ -42,16 +47,33 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Something went wrong");
+        // Provide more specific error messages based on status code
+        if (response.status === 429) {
+          throw new Error("Rate limit reached. Please wait a moment and try again.");
+        } else if (response.status === 400) {
+          throw new Error(data.error || "Invalid input. Please check your text and try again.");
+        } else if (response.status >= 500) {
+          throw new Error("Server error. Please try again in a few moments.");
+        } else {
+          throw new Error(data.error || "Something went wrong");
+        }
       }
 
-      setTransformedText(data.transformed);
+      setTransformedTexts(prev => ({
+        ...prev,
+        [selectedFilter]: data.transformed
+      }));
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong. Please try again."
-      );
+      // Handle network errors vs API errors
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError("Network error. Please check your connection and try again.");
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again."
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -61,10 +83,19 @@ export default function Home() {
     <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
-        <header className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-stone-900 tracking-tight">
-            VibeShift
-          </h1>
+        <header className="text-center space-y-3">
+          <div className="flex items-center justify-center gap-3">
+            <Image
+              src="/icon.svg"
+              alt="VibeShift lens icon"
+              width={32}
+              height={32}
+              className="opacity-80"
+            />
+            <h1 className="text-3xl font-bold text-stone-900 tracking-tight">
+              VibeShift
+            </h1>
+          </div>
           <p className="text-stone-600">See writing through a different lens</p>
         </header>
 
@@ -74,6 +105,7 @@ export default function Home() {
             value={inputText}
             onChange={setInputText}
             disabled={isLoading}
+            placeholder={DEFAULT_TEXT}
           />
 
           <FilterSelector
@@ -83,12 +115,11 @@ export default function Home() {
           />
 
           {/* Action button */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               onClick={handleTransform}
               disabled={!canSubmit}
               className={`
-                flex-1 sm:flex-none
                 px-6 py-3
                 text-base font-medium rounded-lg
                 transition-all duration-150
@@ -102,10 +133,10 @@ export default function Home() {
               {isLoading ? "Focusing..." : "View through lens"}
             </button>
 
-            {transformedText && (
+            {transformedTexts[selectedFilter] && (
               <ShareImage
                 original={inputText}
-                transformed={transformedText}
+                transformed={transformedTexts[selectedFilter]}
                 filter={selectedFilter}
               />
             )}
@@ -129,16 +160,11 @@ export default function Home() {
         <section>
           <OutputDisplay
             original={inputText}
-            transformed={transformedText}
+            transformed={transformedTexts[selectedFilter]}
             filter={selectedFilter}
             isLoading={isLoading}
           />
         </section>
-
-        {/* Footer */}
-        <footer className="pt-8 text-center text-sm text-stone-500">
-          A language lens, not a writing tool
-        </footer>
       </div>
     </main>
   );

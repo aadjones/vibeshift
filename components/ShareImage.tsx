@@ -9,22 +9,23 @@ interface ShareImageProps {
   filter: FilterType;
 }
 
+// Colors match CSS variables in globals.css
 const filterBgColors: Record<FilterType, string> = {
-  corporate: '#f8fafc',
-  sales: '#fffbeb',
-  hotdog: '#fefce8'
+  corporate: '#f8fafc', // --color-corporate-bg
+  sales: '#ecfdf5',     // --color-sales-bg (was #fffbeb - FIXED)
+  hotdog: '#fefce8'     // --color-hotdog-bg
 };
 
 const filterTextColors: Record<FilterType, string> = {
-  corporate: '#475569',
-  sales: '#92400e',
-  hotdog: '#854d0e'
+  corporate: '#475569', // --color-corporate-text
+  sales: '#065f46',     // --color-sales-text (was #92400e - FIXED)
+  hotdog: '#854d0e'     // --color-hotdog-text
 };
 
 const filterAccentColors: Record<FilterType, string> = {
-  corporate: '#94a3b8',
-  sales: '#f59e0b',
-  hotdog: '#E8B923'
+  corporate: '#94a3b8', // --color-corporate-accent
+  sales: '#10b981',     // --color-sales-accent (was #f59e0b - FIXED)
+  hotdog: '#E8B923'     // --color-hotdog-accent
 };
 
 export function ShareImage({ original, transformed, filter }: ShareImageProps) {
@@ -114,7 +115,7 @@ export function ShareImage({ original, transformed, filter }: ShareImageProps) {
         onClick={generateImage}
         disabled={isGenerating || !transformed}
         className={`
-          flex items-center gap-2 px-4 py-2
+          flex items-center justify-center gap-2 px-4 py-3 sm:py-2
           text-sm font-medium rounded-lg
           border border-stone-300
           bg-white hover:bg-stone-50

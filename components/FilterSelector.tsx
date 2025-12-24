@@ -12,18 +12,18 @@ const filters: FilterType[] = ['corporate', 'sales', 'hotdog'];
 
 const filterStyles: Record<FilterType, { base: string; selected: string; icon: string }> = {
   corporate: {
-    base: 'border-stone-300 hover:border-stone-400 hover:bg-stone-50',
-    selected: 'border-stone-600 bg-stone-100 ring-2 ring-stone-600 ring-offset-1',
+    base: 'border-corporate-border hover:border-corporate-border-hover hover:bg-corporate-bg',
+    selected: 'border-corporate-border-selected bg-corporate-bg ring-2 ring-corporate-border-selected ring-offset-1',
     icon: '🏢'
   },
   sales: {
-    base: 'border-amber-300 hover:border-amber-400 hover:bg-amber-50',
-    selected: 'border-amber-500 bg-amber-50 ring-2 ring-amber-500 ring-offset-1',
+    base: 'border-sales-border hover:border-sales-border-hover hover:bg-sales-bg',
+    selected: 'border-sales-border-selected bg-sales-bg ring-2 ring-sales-border-selected ring-offset-1',
     icon: '📈'
   },
   hotdog: {
-    base: 'border-yellow-400 hover:border-yellow-500 hover:bg-yellow-50',
-    selected: 'border-hotdog-mustard bg-yellow-50 ring-2 ring-hotdog-mustard ring-offset-1',
+    base: 'border-hotdog-border hover:border-hotdog-border-hover hover:bg-hotdog-bg',
+    selected: 'border-hotdog-border-selected bg-hotdog-bg ring-2 ring-hotdog-border-selected ring-offset-1',
     icon: '🌭'
   }
 };
@@ -34,7 +34,7 @@ export function FilterSelector({ selected, onChange, disabled }: FilterSelectorP
       <label className="block text-sm font-medium text-stone-700">
         Choose your lens
       </label>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {filters.map((filter) => {
           const isSelected = selected === filter;
           const styles = filterStyles[filter];
